@@ -33,10 +33,15 @@ module Cert
 
       login
 
-      should_create = Cert.config[:force]
+      should_create = Cert.config[:force] && !Cert.config[:readonly]
+      #require 'pry'
+      #binding.pry
       unless should_create
         cert_path = find_existing_cert
-        should_create = cert_path.nil?
+        should_create = cert_path.nil? && !Cert.config[:readonly]
+        if cert_path.nil? && Cert.config[:readonly]
+          UI.important("Could not find existing certificate. Skipping creating the new one because readonly: true")
+        end
       end
 
       return unless should_create

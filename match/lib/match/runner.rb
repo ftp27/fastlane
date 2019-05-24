@@ -90,6 +90,9 @@ module Match
 
       # Certificate
       cert_id = fetch_certificate(params: params, working_directory: storage.working_directory)
+      if cert_id.nil? 
+        raise Spaceship::Client::UnexpectedResponse
+      end
       spaceship.certificate_exists(username: params[:username], certificate_id: cert_id) if spaceship
 
       # Provisioning Profiles
@@ -160,13 +163,18 @@ module Match
       keys = Dir[File.join(prefixed_working_directory(working_directory), "certs", cert_type.to_s, "*.p12")]
 
       if certs.count == 0 || keys.count == 0
-        UI.important("Couldn't find a valid code signing identity for #{cert_type}... creating one for you now")
-        UI.crash!("No code signing identity found and can not create a new one because you enabled `readonly`") if params[:readonly]
-        cert_path = Generator.generate_certificate(params, cert_type, prefixed_working_directory(working_directory))
-        private_key_path = cert_path.gsub(".cer", ".p12")
+        if !params[:developer_portal_readonly] 
+          UI.important("Couldn't find a valid code signing identity for #{cert_type}... creating one for you now")
+          UI.crash!("No code signing identity found and can not create a new one because you enabled `readonly`") if params[:readonly]
+          cert_path = Generator.generate_certificate(params, cert_type, prefixed_working_directory(working_directory))
+          private_key_path = cert_path.gsub(".cer", ".p12")
 
-        self.files_to_commit << cert_path
-        self.files_to_commit << private_key_path
+          self.files_to_commit << cert_path
+          self.files_to_commit << private_key_path
+        else
+          UI.important("Couldn't find a valid code signing identity for #{cert_type}... We won't create the new one")
+          return nil
+        end
       else
         cert_path = certs.last
 

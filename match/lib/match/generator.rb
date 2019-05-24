@@ -12,7 +12,8 @@ module Match
       arguments = FastlaneCore::Configuration.create(Cert::Options.available_options, {
         development: params[:type] == "development",
         output_path: output_path,
-        force: true, # we don't need a certificate without its private key, we only care about a new certificate
+        force: true, 
+        readonly: params[:developer_portal_readonly],
         username: params[:username],
         team_id: params[:team_id],
         team_name: params[:team_name],
@@ -59,7 +60,7 @@ module Match
         app_identifier: app_identifier,
         output_path: File.join(working_directory, "profiles", prov_type.to_s),
         username: params[:username],
-        force: true,
+        force: !params[:developer_portal_readonly],
         cert_id: certificate_id,
         provisioning_name: profile_name,
         ignore_profiles_with_different_name: true,

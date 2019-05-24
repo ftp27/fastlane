@@ -32,6 +32,11 @@ module Match
                                      description: "Only fetch existing certificates and profiles, don't generate new ones",
                                      is_string: false,
                                      default_value: false),
+        FastlaneCore::ConfigItem.new(key: :developer_portal_readonly,
+                                     env_name: "MATCH_DEVELOPER_PORTAL_READONLY",
+                                     description: "Only fetch existing certificates and profiles, don't generate new ones on Apple Developer Portal",
+                                     is_string: false,
+                                     default_value: false),
 
         # app
         FastlaneCore::ConfigItem.new(key: :app_identifier,
